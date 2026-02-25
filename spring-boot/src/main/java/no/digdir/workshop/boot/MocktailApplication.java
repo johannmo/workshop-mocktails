@@ -1,8 +1,9 @@
 package no.digdir.workshop.boot;
 
 import no.digdir.workshop.boot.config.BarProperties;
-import no.digdir.workshop.boot.config.MenuConfig;
+import no.digdir.workshop.boot.repository.MocktailRepository;
 import no.digdir.workshop.boot.service.MocktailService;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,19 +21,54 @@ public class MocktailApplication {
     }
 
     @Bean
-    CommandLineRunner demo(MocktailService service) {
+    CommandLineRunner demo(MocktailService service, MocktailRepository repository) {
         return args -> {
-            service.addMocktail("Virgin Mojito", List.of("lime", "mynte", "sukker", "sodavatn"));
-            service.addMocktail("Shirley Temple", List.of("ginger ale", "grenadine", "sitron"));
 
+            System.out.println("Klasse: " + service.getClass().getName());
+
+            try {
+                service.addMocktails(
+                        List.of("Virgin Mojito", "FEIL", "Shirley Temple"),
+                        List.of(
+                                List.of("lime", "mynte", "sukker", "sodavatn"),
+                                List.of("feil"),
+                                List.of("ginger ale", "grenadine", "sitron")
+                        )
+                );
+            } catch (RuntimeException e) {
+                System.out.println("Feil: " + e.getMessage());
+            }
+
+            System.out.println("Mocktails i registeret:");
             service.getAllMocktails().forEach(System.out::println);
         };
     }
 
     @Bean
-    CommandLineRunner showMenu(MenuConfig menu) {
-        return args -> {
-            System.out.println("Meny: " + menu.defaultMocktails());
+    static BeanPostProcessor introspector() {
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(Object bean, String beanName) {
+                var clazz = bean.getClass();
+                var ctors = clazz.getDeclaredConstructors();
+
+                System.out.println(">>> " + beanName + " (" + clazz.getSimpleName() + ")");
+
+                for (var ctor : ctors) {
+                    var params = ctor.getParameterTypes();
+                    if (params.length > 0) {
+                        System.out.println("    Avhengigheiter injisert via konstruktør:");
+                        for (var param : params) {
+                            System.out.println("      - " + param.getSimpleName());
+                        }
+                    } else {
+                        System.out.println("    Ingen avhengigheiter");
+                    }
+                }
+
+                return bean;
+            }
         };
     }
+
 }

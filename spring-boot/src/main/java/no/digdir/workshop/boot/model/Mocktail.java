@@ -11,6 +11,14 @@ public class Mocktail {
         this.ingredients = ingredients;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getIngredients() {
+        return ingredients;
+    }
+
     @Override
     public String toString() {
         return "Mocktail{" +
