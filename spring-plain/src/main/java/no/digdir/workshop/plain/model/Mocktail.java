@@ -10,4 +10,12 @@ public class Mocktail {
         this.name = name;
         this.ingredients = ingredients;
     }
+
+    @Override
+    public String toString() {
+        return "Mocktail{" +
+                "name='" + name + '\'' +
+                ", ingredients=" + ingredients +
+                '}';
+    }
 }

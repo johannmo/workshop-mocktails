@@ -14,8 +14,6 @@
     <modules>
         <module>spring-plain</module>
         <module>spring-boot</module>
-        <module>spring-plain</module>
-        <module>spring-boot</module>
     </modules>
 
     <properties>
